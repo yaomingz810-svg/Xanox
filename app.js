@@ -78,6 +78,8 @@
       else { hp.removeAttribute("href"); }
     }
     $("#paper-badge").classList.toggle("hidden", mode !== "PAPER");
+    const lb = $("#live-badge");
+    if (lb) lb.classList.toggle("hidden", mode !== "LIVE");
     const bal = s.balance != null ? s.balance : 0;
     $("#odometer").textContent = fmtUsd(bal);
     const tp = s.today_pct != null ? s.today_pct : 0;
@@ -246,6 +248,8 @@
       $("#coin-title").textContent = name;
       const mode = (state.home && state.home.mode) || "PAPER";
       $("#coin-paper").classList.toggle("hidden", mode !== "PAPER");
+      const cl = $("#coin-live");
+      if (cl) cl.classList.toggle("hidden", mode !== "LIVE");
       const pos = data.position;
       const open = pos && !pos.closed_at;
       const btnLabel = open ? "Sell on FOMO" : "Buy on FOMO";
