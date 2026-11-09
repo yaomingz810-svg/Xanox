@@ -2,38 +2,109 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="theme-color" content="#0b0f14" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="theme-color" content="#000000" />
+  <meta name="description" content="FOMO Desk — private trading desk" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="icons/icon-180.png" />
   <title>FOMO Desk</title>
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="app.css" />
 </head>
 <body>
-  <main class="wrap">
-    <header>
-      <h1>FOMO Desk</h1>
-      <p class="sub">plan B · paper</p>
-    </header>
-    <section class="card" id="status-card">
-      <div class="row">
-        <span class="label">link</span>
-        <span id="link-state" class="pill muted">waiting</span>
+  <div id="error-bar" class="error-bar hidden" role="alert"></div>
+  <div id="app">
+    <!-- HOME -->
+    <section id="tab-home" class="tab active" data-tab="home">
+      <header class="navbar">
+        <button type="button" class="avatar tap" id="btn-avatar" aria-label="Account">G</button>
+        <div class="nav-title">Grok Bot <span class="chev">›</span></div>
+        <button type="button" class="icon-btn tap" id="btn-search" aria-label="Search">⌕</button>
+        <button type="button" class="icon-btn tap bell" id="btn-bell" aria-label="Notifications"><span class="bell-dot hidden"></span>🔔</button>
+      </header>
+      <div class="pad">
+        <div class="balance-row">
+          <div id="odometer" class="odometer tabular">$0.00</div>
+          <span id="paper-badge" class="pill orange hidden">PAPER</span>
+        </div>
+        <div class="subrow">
+          <span id="today-pct" class="tabular secondary">+0.00%</span>
+          <span id="mult-pill" class="pill green tabular">1.00×</span>
+        </div>
+        <div class="chart-wrap">
+          <canvas id="home-chart" width="390" height="200"></canvas>
+          <div id="home-chart-empty" class="empty-overlay hidden">Waiting for the first trade</div>
+        </div>
+        <div class="range-switch" id="range-switch">
+          <button type="button" data-range="LIVE" class="tap active">LIVE</button>
+          <button type="button" data-range="1H" class="tap">1H</button>
+          <button type="button" data-range="4H" class="tap">4H</button>
+          <button type="button" data-range="1D" class="tap">1D</button>
+          <button type="button" data-range="1W" class="tap">1W</button>
+          <button type="button" data-range="ALL" class="tap">ALL</button>
+        </div>
+        <div class="section-head">
+          <span>Agents · <span id="agents-running">0 running</span></span>
+        </div>
+        <div class="carousel" id="agent-carousel"></div>
+        <div class="section-head">
+          <span>Activity</span>
+          <button type="button" class="link tap" data-goto="activity">See all</button>
+        </div>
+        <div id="home-activity" class="list"></div>
       </div>
-      <div class="row">
-        <span class="label">poll</span>
-        <span id="poll-state" class="pill muted">idle</span>
-      </div>
-      <div class="row">
-        <span class="label">status.ts</span>
-        <span id="status-ts" class="mono">—</span>
-      </div>
-      <div class="row">
-        <span class="label">ok</span>
-        <span id="status-ok" class="mono">—</span>
-      </div>
-      <p id="msg" class="msg"></p>
     </section>
-  </main>
+
+    <!-- AGENTS -->
+    <section id="tab-agents" class="tab" data-tab="agents">
+      <header class="navbar"><div class="nav-title">Agents</div></header>
+      <div class="pad" id="agents-list"></div>
+    </section>
+
+    <!-- ACTIVITY -->
+    <section id="tab-activity" class="tab" data-tab="activity">
+      <header class="navbar"><div class="nav-title">Activity</div></header>
+      <div class="pad" id="activity-list"></div>
+    </section>
+
+    <!-- ACCOUNT -->
+    <section id="tab-account" class="tab" data-tab="account">
+      <header class="navbar"><div class="nav-title">Account</div></header>
+      <div class="pad" id="account-body"></div>
+    </section>
+
+    <!-- AUDITOR overlay -->
+    <section id="screen-auditor" class="screen hidden">
+      <header class="navbar">
+        <button type="button" class="back tap" data-back>‹</button>
+        <div class="nav-title">Auditor</div>
+      </header>
+      <div class="pad" id="auditor-body"></div>
+    </section>
+
+    <!-- COIN overlay -->
+    <section id="screen-coin" class="screen hidden">
+      <header class="navbar">
+        <button type="button" class="back tap" data-back>‹</button>
+        <div class="nav-title" id="coin-title">Coin</div>
+        <span id="coin-paper" class="pill orange hidden">PAPER</span>
+      </header>
+      <div class="pad" id="coin-body"></div>
+    </section>
+
+    <nav class="tabbar" id="tabbar">
+      <button type="button" class="tap active" data-tab="home"><span>⌂</span>Home</button>
+      <button type="button" class="tap" data-tab="agents"><span>◎</span>Agents</button>
+      <button type="button" class="tap" data-tab="activity"><span>≡</span>Activity</button>
+      <button type="button" class="tap" data-tab="account"><span>●</span>Account</button>
+    </nav>
+  </div>
+  <div id="loading" class="loading">
+    <div class="skel"></div><div class="skel"></div><div class="skel short"></div>
+  </div>
+  <script src="config.js"></script>
+  <script src="chart.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
