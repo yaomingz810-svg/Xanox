@@ -32,7 +32,12 @@
     }
     const pad = 12;
     const start = vals[0];
-    const xAt = i => pad + (w - pad * 2) * (points.length === 1 ? 0.5 : i / (points.length - 1));
+    const flat = !(span > padY * 0.01) || points.length === 1;
+    // For a single point, stretch to full width so fill is a band (not a center triangle)
+    const series = flat && points.length === 1
+      ? [points[0], { ts: points[0].ts, value: points[0].value }]
+      : points;
+    const xAt = i => pad + (w - pad * 2) * (series.length === 1 ? 0.5 : i / (series.length - 1));
     const yAt = v => pad + (h - pad * 2) * (1 - (v - min) / (max - min));
 
     // dashed start line
@@ -44,27 +49,42 @@
     ctx.stroke();
     ctx.setLineDash([]);
 
-    // gradient fill
+    // gradient fill under the line (rectangle band when flat)
     const g = ctx.createLinearGradient(0, pad, 0, h - pad);
     g.addColorStop(0, 'rgba(0,211,90,0.28)');
     g.addColorStop(1, 'rgba(0,211,90,0)');
     ctx.beginPath();
-    points.forEach((p, i) => {
-      const x = xAt(i), y = yAt(+p.value);
-      if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
-    });
-    ctx.lineTo(xAt(points.length - 1), h - pad);
-    ctx.lineTo(xAt(0), h - pad);
-    ctx.closePath();
+    if (flat) {
+      const y = yAt(vals[vals.length - 1]);
+      ctx.moveTo(pad, y);
+      ctx.lineTo(w - pad, y);
+      ctx.lineTo(w - pad, h - pad);
+      ctx.lineTo(pad, h - pad);
+      ctx.closePath();
+    } else {
+      series.forEach((p, i) => {
+        const x = xAt(i), y = yAt(+p.value);
+        if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+      });
+      ctx.lineTo(xAt(series.length - 1), h - pad);
+      ctx.lineTo(xAt(0), h - pad);
+      ctx.closePath();
+    }
     ctx.fillStyle = g;
     ctx.fill();
 
     // line
     ctx.beginPath();
-    points.forEach((p, i) => {
-      const x = xAt(i), y = yAt(+p.value);
-      if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
-    });
+    if (flat) {
+      const y = yAt(vals[vals.length - 1]);
+      ctx.moveTo(pad, y);
+      ctx.lineTo(w - pad, y);
+    } else {
+      series.forEach((p, i) => {
+        const x = xAt(i), y = yAt(+p.value);
+        if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+      });
+    }
     ctx.strokeStyle = '#00d35a';
     ctx.lineWidth = 2;
     ctx.stroke();
@@ -79,7 +99,8 @@
           const d = Math.abs(Date.parse(p.ts) - Date.parse(m.ts));
           if (d < best) { best = d; idx = i; }
         });
-        let x = xAt(idx), y = yAt(+points[idx].value) - 14;
+        let x = (points.length === 1) ? (w / 2) : (pad + (w - pad * 2) * (idx / (points.length - 1)));
+        let y = yAt(+points[idx].value) - 14;
         used.forEach(uy => { if (Math.abs(uy - y) < 14) y -= 14; });
         used.push(y);
         let color = '#0a84ff', label = m.title || m.kind;
