@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="theme-color" content="#0b0f14" />
+  <title>FOMO Desk</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main class="wrap">
+    <header>
+      <h1>FOMO Desk</h1>
+      <p class="sub">plan B · paper</p>
+    </header>
+    <section class="card" id="status-card">
+      <div class="row">
+        <span class="label">link</span>
+        <span id="link-state" class="pill muted">waiting</span>
+      </div>
+      <div class="row">
+        <span class="label">poll</span>
+        <span id="poll-state" class="pill muted">idle</span>
+      </div>
+      <div class="row">
+        <span class="label">status.ts</span>
+        <span id="status-ts" class="mono">—</span>
+      </div>
+      <div class="row">
+        <span class="label">ok</span>
+        <span id="status-ok" class="mono">—</span>
+      </div>
+      <p id="msg" class="msg"></p>
+    </section>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>
