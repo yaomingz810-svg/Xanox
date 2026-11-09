@@ -8,7 +8,7 @@
     agentsDecisions: {},
     coinsIndex: [],
     lastOkAt: null, offline: false, retryIn: 15, unread: false,
-    tab: "home", range: "LIVE",
+    tab: "home", originTab: "home", range: "LIVE",
     selectedMint: null, auditorMint: null,
   };
 
@@ -68,6 +68,15 @@
   function renderHome() {
     const s = state.home || {};
     const mode = s.mode || "PAPER";
+    const acct = state.account || {};
+    const handle = acct.fomo_handle || ((state.settings && state.settings.settings) || {})["desk.fomo_handle"] || "an_sinpru";
+    const profile = acct.profile_url || "#";
+    const hp = $("#home-profile");
+    if (hp) {
+      hp.innerHTML = `${escapeHtml(handle)} <span class="chev">›</span>`;
+      if (profile && profile.startsWith("https://")) { hp.href = profile; hp.target = "_blank"; hp.rel = "noopener"; }
+      else { hp.removeAttribute("href"); }
+    }
     $("#paper-badge").classList.toggle("hidden", mode !== "PAPER");
     const bal = s.balance != null ? s.balance : 0;
     $("#odometer").textContent = fmtUsd(bal);
@@ -225,6 +234,9 @@
   async function openCoin(mint) {
     if (!mint) return;
     state.selectedMint = mint;
+    state.originTab = state.tab || "home";
+    // Keep tabbar on the tab we came from (do not highlight Account)
+    $$("#tabbar button").forEach(b => b.classList.toggle("active", b.dataset.tab === state.originTab));
     $("#screen-coin").classList.remove("hidden");
     $("#coin-body").innerHTML = `<div class="skel"></div>`;
     try {
@@ -259,6 +271,8 @@
   async function openAuditor(mint) {
     if (!mint) return;
     state.auditorMint = mint;
+    state.originTab = state.tab || "home";
+    $$("#tabbar button").forEach(b => b.classList.toggle("active", b.dataset.tab === state.originTab));
     $("#screen-auditor").classList.remove("hidden");
     $("#auditor-body").innerHTML = `<div class="skel"></div>`;
     try {
@@ -370,7 +384,12 @@
       const t = ev.target.closest("[data-goto]");
       if (t) gotoTab(t.dataset.goto);
       const back = ev.target.closest("[data-back]");
-      if (back) { $("#screen-coin").classList.add("hidden"); $("#screen-auditor").classList.add("hidden"); }
+      if (back) {
+        $("#screen-coin").classList.add("hidden");
+        $("#screen-auditor").classList.add("hidden");
+        const t = state.originTab || state.tab || "home";
+        $$("#tabbar button").forEach(b => b.classList.toggle("active", b.dataset.tab === t));
+      }
       const item = ev.target.closest("[data-open]");
       if (item) {
         const mint = item.dataset.mint;
