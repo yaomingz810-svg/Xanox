@@ -21,7 +21,15 @@
     if (!points || points.length < 1) return false;
     const vals = points.map(p => +p.value);
     let min = Math.min(...vals), max = Math.max(...vals);
-    if (min === max) { min -= 1; max += 1; }
+    // Flat / near-flat series: pad so we draw a horizontal line, not a spiked triangle
+    // from tiny float noise or a 0-range scale.
+    const span = max - min;
+    const padY = Math.max(Math.abs(min) * 0.02, 1); // >= $1 or 2% of level
+    if (!(span > padY * 0.01)) { // ~0 relative range
+      const mid = (min + max) / 2;
+      min = mid - padY;
+      max = mid + padY;
+    }
     const pad = 12;
     const start = vals[0];
     const xAt = i => pad + (w - pad * 2) * (points.length === 1 ? 0.5 : i / (points.length - 1));
